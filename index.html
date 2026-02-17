@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#1a1825"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icons/icon-192.png"/>
+<link rel="stylesheet" href="style.css"/>
+<title>Mis Libros</title>
+</head>
+<body>
+
+<!-- SIDEBAR BACKDROP -->
+<div class="sb-backdrop" id="sbBackdrop"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <nav class="sb-nav">
+    <button class="sb-item active" data-page="inicio">
+      <span class="sb-icon">🏠</span><span>Inicio</span>
+    </button>
+    <button class="sb-item" data-page="generos">
+      <span class="sb-icon">📂</span><span>Géneros</span>
+    </button>
+    <button class="sb-item" data-page="autores">
+      <span class="sb-icon">👤</span><span>Autores</span>
+    </button>
+    <button class="sb-item" data-page="misescritos">
+      <span class="sb-icon">📝</span><span>Mis Escritos</span>
+    </button>
+  </nav>
+  <button class="sb-upload" id="btnUploadSb">
+    <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="9" cy="9" r="7.5"/><line x1="9" y1="5.5" x2="9" y2="12.5"/><line x1="5.5" y1="9" x2="12.5" y2="9"/></svg>
+    Subir un escrito
+  </button>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="hamburger" id="btnHamb" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="tb-brand">
+      <svg class="tb-logo" viewBox="0 0 24 24" fill="none">
+        <rect x="1" y="2" width="9" height="20" rx="2" fill="#6c8dd6"/>
+        <rect x="14" y="2" width="9" height="20" rx="2" fill="#8aade8"/>
+        <line x1="3.5" y1="6" x2="7.5" y2="6" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="3.5" y1="8.5" x2="6.5" y2="8.5" stroke="#fff" stroke-width="0.9" stroke-linecap="round" opacity=".6"/>
+        <line x1="16.5" y1="6" x2="20.5" y2="6" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="16.5" y1="8.5" x2="19.5" y2="8.5" stroke="#fff" stroke-width="0.9" stroke-linecap="round" opacity=".6"/>
+      </svg>
+      <span class="tb-title">Mis Libros</span>
+    </div>
+    <input type="text" class="tb-search" id="searchInput" placeholder="Buscar libros…"/>
+    <div class="tb-right">
+      <button class="tb-settings" id="btnSettings" aria-label="Ajustes">
+        <svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.2" fill="currentColor"/></svg>
+      </button>
+      <button class="tb-add" id="btnUploadTop" aria-label="Añadir libro">
+        <svg viewBox="0 0 18 18" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"><line x1="9" y1="3" x2="9" y2="15"/><line x1="3" y1="9" x2="15" y2="9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SCROLLABLE AREA -->
+  <div class="scroll-area">
+
+    <!-- READING NOW BANNER -->
+    <section class="reading-banner" id="readingBanner">
+      <div class="rb-cover" id="rbCover">
+        <svg viewBox="0 0 48 58" fill="none">
+          <rect x="1" y="1" width="46" height="56" rx="5" fill="#8b6914"/>
+          <line x1="7" y1="13" x2="41" y2="13" stroke="rgba(255,255,255,.7)" stroke-width="2.6" stroke-linecap="round"/>
+          <line x1="7" y1="21" x2="34" y2="21" stroke="rgba(255,255,255,.42)" stroke-width="2" stroke-linecap="round"/>
+          <line x1="7" y1="28" x2="38" y2="28" stroke="rgba(255,255,255,.42)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="rb-info">
+        <p class="rb-label">📖 LEYENDO AHORA</p>
+        <p class="rb-title" id="rbTitle">Sin libro abierto</p>
+        <div class="rb-prog-wrap"><div class="rb-prog" id="rbProg" style="width:0%"></div></div>
+        <p class="rb-sub" id="rbSub">0% completado</p>
+      </div>
+    </section>
+
+    <!-- GENRE PILLS -->
+    <div class="pills" id="pillsRow">
+      <button class="pill active" data-genre="all">Todos</button>
+      <button class="pill" data-genre="ficcion">📖 Ficción</button>
+      <button class="pill" data-genre="misterio">🔍 Misterio</button>
+      <button class="pill" data-genre="no-ficcion">🚀 Ciencia Ficción</button>
+      <button class="pill" data-genre="romance">💗 Romance</button>
+      <button class="pill" data-genre="historia">🏛 Historia</button>
+      <button class="pill" data-genre="fantasia">🌿 Fantasia</button>
+      <button class="pill" data-genre="novela">📚 Novela</button>
+      <button class="pill" data-genre="poesia">✨ Poesía</button>
+      <button class="pill" data-genre="cuento">📖 Cuento</button>
+    </div>
+
+    <!-- SECTION TITLE -->
+    <h2 class="sec-title">Novedades</h2>
+
+    <!-- BOOK GRID -->
+    <div class="book-grid" id="bookGrid"></div>
+
+    <!-- EXPLORE STRIP -->
+    <button class="explore-strip" id="btnExplore">
+      Explorar mas
+      <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="9" r="7.5"/><line x1="9" y1="5.5" x2="9" y2="12.5"/><line x1="5.5" y1="9" x2="12.5" y2="9"/></svg>
+    </button>
+
+  </div><!-- /scroll-area -->
+</div><!-- /main -->
+
+
+<!-- ======== MODAL: UPLOAD ======== -->
+<div class="overlay" id="modUpload">
+  <div class="modal">
+    <button class="mod-x" id="closeUpload">&times;</button>
+    <h2 class="mod-h2">📝 Subir Escrito</h2>
+    <div class="mod-tabs">
+      <button class="mod-tab active" data-tab="new">Nuevo</button>
+      <button class="mod-tab" data-tab="manage">Gestionar</button>
+    </div>
+    <div class="tab-pane active" id="paneNew">
+      <label class="lbl">Título</label>
+      <input class="inp" id="inpTitle" placeholder="Título del escrito…"/>
+      <label class="lbl">Autor</label>
+      <input class="inp" id="inpAuthor" placeholder="Nombre del autor…"/>
+      <label class="lbl">Genero</label>
+      <select class="inp sel" id="selGenre">
+        <option value="ficcion">Ficción</option>
+        <option value="no-ficcion">No Ficción</option>
+        <option value="poesia">Poesía</option>
+        <option value="cuento">Cuento Corto</option>
+        <option value="novela">Novela</option>
+        <option value="otro">Otro</option>
+      </select>
+      <label class="lbl">Contenido</label>
+      <div class="mode-row">
+        <button class="mode-btn active" data-mode="text">✏️ Texto</button>
+        <button class="mode-btn" data-mode="pdf">📄 PDF</button>
+      </div>
+      <textarea class="ta" id="taContent" placeholder="Escribe o pega aquí…"></textarea>
+      <div class="pdf-zone" id="pdfZone" style="display:none">
+        <input type="file" accept=".pdf" id="inpPdf" style="display:none"/>
+        <div class="pdf-drop" id="pdfDrop">
+          <span class="pdf-ico">📄</span>
+          <p>Arrastra un PDF o haz clic</p>
+        </div>
+        <div class="pdf-chip" id="pdfChip" style="display:none">
+          <span id="pdfName">archivo.pdf</span>
+          <button class="pdf-rm" id="pdfRm">✕</button>
+        </div>
+      </div>
+      <button class="btn-primary" id="btnSave">💾 Guardar</button>
+    </div>
+    <div class="tab-pane" id="paneManage">
+      <div class="manage-list" id="manageList">
+        <p class="empty-txt">No tienes escritos personales aún.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: SETTINGS ======== -->
+<div class="overlay" id="modSettings">
+  <div class="modal">
+    <button class="mod-x" id="closeSettings">&times;</button>
+    <h2 class="mod-h2">⚙️ Configuración</h2>
+    <label class="lbl">Tema</label>
+    <select class="inp sel" id="selTheme">
+      <option value="dark">Oscuro</option>
+      <option value="light">Claro</option>
+    </select>
+    <label class="lbl">Tamaño de fuente (lectura)</label>
+    <select class="inp sel" id="selFont">
+      <option value="15">Pequeño</option>
+      <option value="17" selected>Normal</option>
+      <option value="19">Grande</option>
+      <option value="22">Muy grande</option>
+    </select>
+    <button class="btn-primary" id="btnSaveSett">Guardar</button>
+  </div>
+</div>
+
+<!-- ======== MODAL: EDIT ======== -->
+<div class="overlay" id="modEdit">
+  <div class="modal">
+    <button class="mod-x" id="closeEdit">&times;</button>
+    <h2 class="mod-h2">✏️ Editar Escrito</h2>
+    <input type="hidden" id="editId"/>
+    <label class="lbl">Título</label>
+    <input class="inp" id="editTitle"/>
+    <label class="lbl">Autor</label>
+    <input class="inp" id="editAuthor"/>
+    <label class="lbl">Genero</label>
+    <select class="inp sel" id="editGenre">
+      <option value="ficcion">Ficción</option>
+      <option value="no-ficcion">No Ficción</option>
+      <option value="poesia">Poesía</option>
+      <option value="cuento">Cuento Corto</option>
+      <option value="novela">Novela</option>
+      <option value="otro">Otro</option>
+    </select>
+    <label class="lbl">Contenido</label>
+    <textarea class="ta" id="editTA"></textarea>
+    <button class="btn-primary" id="btnSaveEdit">💾 Guardar cambios</button>
+  </div>
+</div>
+
+<!-- ======== MODAL: READER ======== -->
+<div class="overlay overlay-reader" id="modReader">
+  <div class="modal modal-reader">
+    <div class="reader-hd">
+      <button class="mod-x reader-x" id="closeReader">&times;</button>
+      <span class="reader-htitle" id="readerTitle">—</span>
+      <span class="reader-pct" id="readerPct">0 %</span>
+    </div>
+    <div class="reader-body" id="readerBody">
+      <div class="reader-txt" id="readerTxt"></div>
+    </div>
+    <div class="reader-pdf-wrap" id="readerPdfWrap" style="display:none"></div>
+    <div class="reader-ft">
+      <div class="reader-prog-bg"><div class="reader-prog-fill" id="readerProg" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODAL: GENEROS ======== -->
+<div class="overlay" id="modGeneros">
+  <div class="modal">
+    <button class="mod-x" id="closeGeneros">&times;</button>
+    <h2 class="mod-h2">📂 Géneros</h2>
+    <div class="filter-list" id="generosList"></div>
+  </div>
+</div>
+
+<!-- ======== MODAL: AUTORES ======== -->
+<div class="overlay" id="modAutores">
+  <div class="modal">
+    <button class="mod-x" id="closeAutores">&times;</button>
+    <h2 class="mod-h2">👤 Autores</h2>
+    <div class="filter-list" id="autoresList"></div>
+  </div>
+</div>
+
+<!-- ======== PWA INSTALL ======== -->
+<div class="install-bar" id="installBar" style="display:none">
+  <span>📱 ¡Instala la app!</span>
+  <button id="btnInstall">Instalar</button>
+  <button class="inst-x" id="instDismiss">&times;</button>
+</div>
+
+<script src="app.js"></script>
+
+<!-- CHATBOT -->
+<button class="chat-toggle" onclick="toggleChat()">💬</button>
+
+<div class="chat-container" id="chatContainer">
+  <div class="chat-header">Asistente de Libros ✨</div>
+  <div id="chatMessages" class="chat-messages"></div>
+  <div class="chat-input">
+    <input type="text" id="userInput" placeholder="Pregunta por un libro..." />
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+</div>
+
+</body>
+</html>
