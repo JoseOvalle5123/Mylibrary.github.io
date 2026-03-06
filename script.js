@@ -200,7 +200,7 @@ let stripe = null;
 let cardElement = null;
 let pendingPaymentContext = null; // 'premium' | 'cart'
 let selectedPlanAmount = 50;
-let selectedPaymentMethod = 'card'; // 'card' | 'oxxo'
+let selectedPaymentMethod = "card"; // 'card' | 'oxxo'
 
 /* ---------- PREMIUM & LIMITS ---------- */
 function isPremium() {
@@ -391,7 +391,7 @@ function createBookCard(b, i) {
   const newBadge = b.isNew ? '<span class="bk-badge">NUEVO</span>' : "";
   const ownBadge = !b.isDefault ? '<span class="bk-badge-own">Mío</span>' : "";
   const price = b.price || 50;
-  const priceLabel = price < 100 ? `${price}¢` : '$' + (price / 100).toFixed(2);
+  const priceLabel = price < 100 ? `${price}¢` : "$" + (price / 100).toFixed(2);
   const inCart = cart.some((c) => c.id === b.id);
 
   card.innerHTML = `
@@ -574,7 +574,7 @@ function openCartModal() {
             <div class="ci-cover">📚</div>
             <div class="ci-info">
               <p class="ci-title">${escapeHtml(item.title)}</p>
-              <p class="ci-price">${item.price < 100 ? item.price + '¢ USD' : '$' + (item.price / 100).toFixed(2)}</p>
+              <p class="ci-price">${item.price < 100 ? item.price + "¢ USD" : "$" + (item.price / 100).toFixed(2)}</p>
             </div>
             <button class="ci-remove" data-idx="${idx}" title="Eliminar">✕</button>
           </div>
@@ -584,7 +584,7 @@ function openCartModal() {
       </div>
       <div class="cart-total">
         <span class="cart-total-lbl">Total</span>
-        <span class="cart-total-val">${total < 100 ? total + '¢ USD' : '$' + (total / 100).toFixed(2)}</span>
+        <span class="cart-total-val">${total < 100 ? total + "¢ USD" : "$" + (total / 100).toFixed(2)}</span>
       </div>`;
 
     content.querySelectorAll(".ci-remove").forEach((btn) => {
@@ -681,14 +681,16 @@ async function openPaymentModal(context) {
   showOverlay("modPayment");
 
   // Reset payment method tabs
-  selectedPaymentMethod = 'card';
-  document.querySelectorAll('.pm-tab').forEach(t => t.classList.toggle('active', t.dataset.method === 'card'));
-  const cardSec = document.getElementById('cardSection');
-  const oxxoSec = document.getElementById('oxxoSection');
-  if (cardSec) cardSec.style.display = 'block';
-  if (oxxoSec) oxxoSec.style.display = 'none';
-  const btnPay = document.getElementById('btnPay');
-  if (btnPay) btnPay.textContent = '💳 Pagar ahora';
+  selectedPaymentMethod = "card";
+  document
+    .querySelectorAll(".pm-tab")
+    .forEach((t) => t.classList.toggle("active", t.dataset.method === "card"));
+  const cardSec = document.getElementById("cardSection");
+  const oxxoSec = document.getElementById("oxxoSection");
+  if (cardSec) cardSec.style.display = "block";
+  if (oxxoSec) oxxoSec.style.display = "none";
+  const btnPay = document.getElementById("btnPay");
+  if (btnPay) btnPay.textContent = "💳 Pagar ahora";
 
   await initStripe();
   if (stripe) {
@@ -713,13 +715,22 @@ async function processPayment() {
   }
 
   // Validate OXXO fields
-  if (selectedPaymentMethod === 'oxxo') {
-    const name = document.getElementById('oxxoName')?.value.trim();
-    const email = document.getElementById('oxxoEmail')?.value.trim();
-    if (!name) { errEl.textContent = 'Por favor ingresa tu nombre completo.'; return; }
-    if (!email || !email.includes('@')) { errEl.textContent = 'Por favor ingresa un correo válido.'; return; }
+  if (selectedPaymentMethod === "oxxo") {
+    const name = document.getElementById("oxxoName")?.value.trim();
+    const email = document.getElementById("oxxoEmail")?.value.trim();
+    if (!name) {
+      errEl.textContent = "Por favor ingresa tu nombre completo.";
+      return;
+    }
+    if (!email || !email.includes("@")) {
+      errEl.textContent = "Por favor ingresa un correo válido.";
+      return;
+    }
   } else {
-    if (!cardElement) { errEl.textContent = 'Stripe no está configurado.'; return; }
+    if (!cardElement) {
+      errEl.textContent = "Stripe no está configurado.";
+      return;
+    }
   }
 
   btn.disabled = true;
@@ -731,37 +742,42 @@ async function processPayment() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         amount: selectedPlanAmount,
-        currency: "mxn",
-        payment_method_type: selectedPaymentMethod
+        currency: selectedPaymentMethod === "oxxo" ? "mxn" : "usd",
+        payment_method_type: selectedPaymentMethod,
       }),
     });
 
     if (!res.ok) throw new Error("Error al crear el intento de pago.");
     const { clientSecret } = await res.json();
 
-    if (selectedPaymentMethod === 'oxxo') {
+    if (selectedPaymentMethod === "oxxo") {
       // OXXO payment flow
-      const name = document.getElementById('oxxoName').value.trim();
-      const email = document.getElementById('oxxoEmail').value.trim();
+      const name = document.getElementById("oxxoName").value.trim();
+      const email = document.getElementById("oxxoEmail").value.trim();
 
-      const { paymentIntent, error } = await stripe.confirmOxxoPayment(clientSecret, {
-        payment_method: {
-          billing_details: { name, email }
-        }
-      });
+      const { paymentIntent, error } = await stripe.confirmOxxoPayment(
+        clientSecret,
+        {
+          payment_method: {
+            billing_details: { name, email },
+          },
+        },
+      );
 
-      if (error && error.type !== 'payment_intent_next_action_required') {
+      if (error && error.type !== "payment_intent_next_action_required") {
         errEl.textContent = error.message;
       } else {
         // Show OXXO voucher instructions
         showOxxoSuccess(paymentIntent);
       }
-
     } else {
       // Card payment flow (Visa, Mastercard, Spin by OXXO)
-      const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement },
-      });
+      const { paymentIntent, error } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: { card: cardElement },
+        },
+      );
 
       if (error) {
         errEl.textContent = error.message;
@@ -769,25 +785,31 @@ async function processPayment() {
         onPaymentSuccess();
       }
     }
-
   } catch (e) {
     errEl.textContent = e.message || "Error de conexión con el servidor.";
   } finally {
     btn.disabled = false;
-    btn.textContent = selectedPaymentMethod === 'oxxo' ? '🏪 Generar voucher OXXO' : '💳 Pagar ahora';
+    btn.textContent =
+      selectedPaymentMethod === "oxxo"
+        ? "🏪 Generar voucher OXXO"
+        : "💳 Pagar ahora";
   }
 }
 
 function showOxxoSuccess(paymentIntent) {
   closeOverlay("modPayment");
   const nextAction = paymentIntent?.next_action?.oxxo_display_details;
-  const expiresAt = nextAction?.expires_after ? new Date(nextAction.expires_after * 1000).toLocaleString('es-MX') : '24 horas';
-  const reference = nextAction?.number || 'Ver email para el número de referencia';
+  const expiresAt = nextAction?.expires_after
+    ? new Date(nextAction.expires_after * 1000).toLocaleString("es-MX")
+    : "24 horas";
+  const reference =
+    nextAction?.number || "Ver email para el número de referencia";
 
   const content = document.getElementById("paymentContent");
   const payTitleEl = document.getElementById("paymentTitle");
-  if (payTitleEl) payTitleEl.textContent = '🏪 Voucher OXXO Generado';
-  if (content) content.innerHTML = `
+  if (payTitleEl) payTitleEl.textContent = "🏪 Voucher OXXO Generado";
+  if (content)
+    content.innerHTML = `
     <div class="pay-success-msg">
       <div class="prem-icon">🏪</div>
       <h3>¡Voucher Generado!</h3>
@@ -811,14 +833,17 @@ function onPaymentSuccess() {
     activatePremium();
   }
 
- 
- // Show success inside modal briefly
+  // Show success inside modal briefly
   const content = document.getElementById("paymentContent");
   const payTitleEl2 = document.getElementById("paymentTitle");
   const originalContent = content.innerHTML;
   const originalTitle = payTitleEl2 ? payTitleEl2.textContent : "";
-  const successTitle = pendingPaymentContext === "cart" ? "¡Compra Exitosa!" : "¡Eres Premium!";
-  const successMsg = pendingPaymentContext === "cart" ? "Tu pedido ha sido procesado correctamente." : "Ya puedes leer y subir sin límites. ¡Disfruta!";
+  const successTitle =
+    pendingPaymentContext === "cart" ? "¡Compra Exitosa!" : "¡Eres Premium!";
+  const successMsg =
+    pendingPaymentContext === "cart"
+      ? "Tu pedido ha sido procesado correctamente."
+      : "Ya puedes leer y subir sin límites. ¡Disfruta!";
   if (payTitleEl2) payTitleEl2.textContent = successTitle;
   content.innerHTML = `
     <div class="pay-success-msg">
@@ -833,7 +858,9 @@ function onPaymentSuccess() {
     if (payTitleEl2) payTitleEl2.textContent = originalTitle;
     document.querySelectorAll(".plan-card").forEach((card) => {
       card.addEventListener("click", () => {
-        document.querySelectorAll(".plan-card").forEach((c) => c.classList.remove("selected"));
+        document
+          .querySelectorAll(".plan-card")
+          .forEach((c) => c.classList.remove("selected"));
         card.classList.add("selected");
         selectedPlanAmount = parseInt(card.dataset.amount);
       });
@@ -1336,24 +1363,26 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Payment method tabs (Card / OXXO)
-  document.querySelectorAll('.pm-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.pm-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
+  document.querySelectorAll(".pm-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document
+        .querySelectorAll(".pm-tab")
+        .forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
       selectedPaymentMethod = tab.dataset.method;
 
-      const cardSec = document.getElementById('cardSection');
-      const oxxoSec = document.getElementById('oxxoSection');
-      const btnPay  = document.getElementById('btnPay');
+      const cardSec = document.getElementById("cardSection");
+      const oxxoSec = document.getElementById("oxxoSection");
+      const btnPay = document.getElementById("btnPay");
 
-      if (selectedPaymentMethod === 'oxxo') {
-        if (cardSec) cardSec.style.display = 'none';
-        if (oxxoSec) oxxoSec.style.display = 'block';
-        if (btnPay)  btnPay.textContent = '🏪 Generar voucher OXXO';
+      if (selectedPaymentMethod === "oxxo") {
+        if (cardSec) cardSec.style.display = "none";
+        if (oxxoSec) oxxoSec.style.display = "block";
+        if (btnPay) btnPay.textContent = "🏪 Generar voucher OXXO";
       } else {
-        if (cardSec) cardSec.style.display = 'block';
-        if (oxxoSec) oxxoSec.style.display = 'none';
-        if (btnPay)  btnPay.textContent = '💳 Pagar ahora';
+        if (cardSec) cardSec.style.display = "block";
+        if (oxxoSec) oxxoSec.style.display = "none";
+        if (btnPay) btnPay.textContent = "💳 Pagar ahora";
       }
     });
   });

@@ -47,7 +47,7 @@ app.post('/create-payment-intent', async (req, res) => {
       return res.status(500).json({ error: 'STRIPE_SECRET_KEY no configurado.' });
 
     // OXXO only works with MXN
-    const useCurrency = payment_method_type === 'oxxo' ? 'mxn' : currency.toLowerCase();
+  const useCurrency = payment_method_type === 'oxxo' ? 'mxn' : 'usd';
 
     const paymentIntentData = {
       amount: Math.round(amount),
